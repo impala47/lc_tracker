@@ -77,7 +77,12 @@ def _session(extra_headers: dict | None = None) -> requests.Session:
     s.headers.update(
         {
             "Content-Type": "application/json",
-            "User-Agent": "Mozilla/5.0 (compatible; a2z-tracker/1.0)",
+            # A realistic browser UA — LeetCode's endpoints (esp. /api/submissions/)
+            # bot-block obviously-automated User-Agents.
+            "User-Agent": (
+                "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 "
+                "(KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36"
+            ),
             "Referer": "https://leetcode.com/problemset/",
             "Origin": "https://leetcode.com",
         }
@@ -173,6 +178,12 @@ def fetch_submission_dates(session_cookie: str, csrf: str | None) -> dict[str, s
     time, newest first). Because it's ordered newest-first, the FIRST accepted
     entry we see for a slug is its most recent solve, so we keep that and skip
     older duplicates.
+
+    This endpoint is aggressively rate-limited/bot-blocked (especially from CI /
+    datacenter IPs), so this is best-effort: on a 403/429 we retry with backoff
+    and, if still blocked, return whatever dates we collected so far rather than
+    failing the whole sync. Newest-first ordering means a partial walk still dates
+    your most recent solves.
     """
     session = _auth_session(session_cookie, csrf)
     session.headers["Referer"] = "https://leetcode.com/submissions/"
@@ -180,9 +191,30 @@ def fetch_submission_dates(session_cookie: str, csrf: str | None) -> dict[str, s
     latest_ts: dict[str, int] = {}
     offset, page, max_pages = 0, 20, 1000  # 20k submissions is a generous ceiling
     for _ in range(max_pages):
-        resp = session.get(SUBMISSIONS_API, params={"offset": offset, "limit": page}, timeout=30)
-        resp.raise_for_status()
-        data = resp.json()
+        data = None
+        for attempt in range(3):
+            try:
+                resp = session.get(
+                    SUBMISSIONS_API, params={"offset": offset, "limit": page}, timeout=30
+                )
+                resp.raise_for_status()
+                data = resp.json()
+                break
+            except requests.HTTPError as e:
+                status = getattr(e.response, "status_code", None)
+                if status in (403, 429) and attempt < 2:
+                    wait = 2 ** (attempt + 1)  # 2s, 4s
+                    print(f"  …{status} at offset {offset}, backing off {wait}s")
+                    time.sleep(wait)
+                    continue
+                print(
+                    f"  ⚠ submission history blocked at offset {offset} ({e}). "
+                    f"Dated {len(latest_ts)} problem(s) before that; continuing."
+                )
+                return {slug: to_date(ts) for slug, ts in latest_ts.items()}
+        if data is None:
+            break
+
         dump = data.get("submissions_dump") or []
         for sub in dump:
             if sub.get("status_display") != "Accepted":
@@ -196,7 +228,7 @@ def fetch_submission_dates(session_cookie: str, csrf: str | None) -> dict[str, s
         if not data.get("has_next") or not dump:
             break
         offset += page
-        time.sleep(0.3)  # be gentle on the submissions endpoint
+        time.sleep(0.6)  # be gentle on the submissions endpoint
     return {slug: to_date(ts) for slug, ts in latest_ts.items()}
 
 
@@ -225,7 +257,11 @@ def main() -> int:
         print(f"  → {len(solved_slugs)} total solved problems on your account.")
 
         print("Fetching full submission history for solve dates…")
-        history_dates = fetch_submission_dates(session_cookie, csrf)
+        try:
+            history_dates = fetch_submission_dates(session_cookie, csrf)
+        except Exception as e:  # never let date-fetching break the solved-count sync
+            print(f"  ⚠ could not fetch submission history ({e}); using recent dates only.")
+            history_dates = {}
         print(f"  → dated {len(history_dates)} problem(s) from history.")
         for slug, date in history_dates.items():
             dates.setdefault(slug, date)  # recent_dates win ties (freshest source)
