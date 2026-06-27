@@ -1119,7 +1119,7 @@
     "problemUrl": "https://leetcode.com/problems/binary-search/",
     "difficulty": "Easy",
     "completed": true,
-    "lastSolved": "2024-12-16"
+    "lastSolved": "2024-12-15"
   },
   {
     "step": "Step 4: Binary Search [1D, 2D Arrays, Search Space]",
@@ -1196,7 +1196,7 @@
     "problemUrl": "https://leetcode.com/problems/search-in-rotated-sorted-array/",
     "difficulty": "Medium",
     "completed": true,
-    "lastSolved": "2025-07-14"
+    "lastSolved": "2025-07-13"
   },
   {
     "step": "Step 4: Binary Search [1D, 2D Arrays, Search Space]",
@@ -1284,7 +1284,7 @@
     "problemUrl": "https://leetcode.com/problems/koko-eating-bananas/",
     "difficulty": "Medium",
     "completed": true,
-    "lastSolved": "2024-12-18"
+    "lastSolved": "2024-12-17"
   },
   {
     "step": "Step 4: Binary Search [1D, 2D Arrays, Search Space]",
@@ -1361,7 +1361,7 @@
     "problemUrl": "https://leetcode.com/problems/split-array-largest-sum/",
     "difficulty": "Hard",
     "completed": true,
-    "lastSolved": "2024-12-20"
+    "lastSolved": "2024-12-19"
   },
   {
     "step": "Step 4: Binary Search [1D, 2D Arrays, Search Space]",
@@ -1394,7 +1394,7 @@
     "problemUrl": "https://leetcode.com/problems/median-of-two-sorted-arrays/",
     "difficulty": "Hard",
     "completed": true,
-    "lastSolved": "2025-07-13"
+    "lastSolved": "2025-07-12"
   },
   {
     "step": "Step 4: Binary Search [1D, 2D Arrays, Search Space]",
@@ -1746,7 +1746,7 @@
     "problemUrl": "https://leetcode.com/problems/reverse-linked-list/",
     "difficulty": "Medium",
     "completed": true,
-    "lastSolved": "2025-01-04"
+    "lastSolved": "2025-01-03"
   },
   {
     "step": "Step 6: Learn LinkedList [Single LL, Double LL, Medium, Hard Problems]",
@@ -1757,7 +1757,7 @@
     "problemUrl": "https://leetcode.com/problems/reverse-linked-list/",
     "difficulty": "Medium",
     "completed": true,
-    "lastSolved": "2025-01-04"
+    "lastSolved": "2025-01-03"
   },
   {
     "step": "Step 6: Learn LinkedList [Single LL, Double LL, Medium, Hard Problems]",
@@ -2098,7 +2098,7 @@
     "problemUrl": "https://leetcode.com/problems/combination-sum/",
     "difficulty": "Medium",
     "completed": true,
-    "lastSolved": "2025-01-19"
+    "lastSolved": "2025-01-18"
   },
   {
     "step": "Step 7: Recursion [PatternWise]",
@@ -2417,7 +2417,7 @@
     "problemUrl": "https://leetcode.com/problems/count-primes/",
     "difficulty": "Hard",
     "completed": true,
-    "lastSolved": "2025-05-29"
+    "lastSolved": "2025-05-28"
   },
   {
     "step": "Step 8: Bit Manipulation [Concepts & Problems]",
@@ -2648,7 +2648,7 @@
     "problemUrl": "https://leetcode.com/problems/trapping-rain-water/",
     "difficulty": "Hard",
     "completed": true,
-    "lastSolved": "2025-07-11"
+    "lastSolved": "2025-07-10"
   },
   {
     "step": "Step 9: Stack and Queues [Learning, Pre-In-Post-fix, Monotonic Stack, Implementation]",
@@ -2824,7 +2824,7 @@
     "problemUrl": "https://leetcode.com/problems/binary-subarrays-with-sum/",
     "difficulty": "Hard",
     "completed": true,
-    "lastSolved": "2025-05-31"
+    "lastSolved": "2025-05-30"
   },
   {
     "step": "Step 10: Sliding Window & Two Pointer Combined Problems",
@@ -3011,7 +3011,7 @@
     "problemUrl": "https://leetcode.com/problems/task-scheduler/",
     "difficulty": "Medium",
     "completed": true,
-    "lastSolved": "2025-06-05"
+    "lastSolved": "2025-06-04"
   },
   {
     "step": "Step 11: Heaps [Learning, Medium, Hard Problems]",
@@ -3154,7 +3154,7 @@
     "problemUrl": "https://leetcode.com/problems/jump-game/",
     "difficulty": "Easy",
     "completed": true,
-    "lastSolved": "2025-06-09"
+    "lastSolved": "2025-06-08"
   },
   {
     "step": "Step 12: Greedy Algorithms [Easy, Medium/Hard]",
@@ -3407,7 +3407,7 @@
     "problemUrl": "https://leetcode.com/problems/balanced-binary-tree/",
     "difficulty": "Medium",
     "completed": true,
-    "lastSolved": "2025-06-13"
+    "lastSolved": "2025-06-12"
   },
   {
     "step": "Step 13: Binary Trees [Traversals, Medium and Hard Problems]",
@@ -3979,7 +3979,7 @@
     "problemUrl": "https://leetcode.com/problems/course-schedule/",
     "difficulty": "Hard",
     "completed": true,
-    "lastSolved": "2024-10-14"
+    "lastSolved": "2024-10-13"
   },
   {
     "step": "Step 15: Graphs [Concepts & Problems]",
@@ -4100,7 +4100,7 @@
     "problemUrl": "https://leetcode.com/problems/course-schedule/",
     "difficulty": "Hard",
     "completed": true,
-    "lastSolved": "2024-10-14"
+    "lastSolved": "2024-10-13"
   },
   {
     "step": "Step 15: Graphs [Concepts & Problems]",
@@ -4111,7 +4111,7 @@
     "problemUrl": "https://leetcode.com/problems/course-schedule/",
     "difficulty": "Hard",
     "completed": true,
-    "lastSolved": "2024-10-14"
+    "lastSolved": "2024-10-13"
   },
   {
     "step": "Step 15: Graphs [Concepts & Problems]",
