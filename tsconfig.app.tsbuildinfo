@@ -1,0 +1,1 @@
+{"root":["./src/app.tsx","./src/main.tsx","./src/types.ts","./src/vite-env.d.ts","./src/components/heatmap.tsx","./src/components/progressanalytics.tsx","./src/components/sheetaccordion.tsx","./src/lib/stats.ts"],"version":"5.9.3"}
