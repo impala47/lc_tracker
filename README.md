@@ -11,7 +11,7 @@ GitHub Pages serves only static files and the browser can't call LeetCode direct
 all data is compiled ahead of time:
 
 ```
-GitHub Actions cron (every 6h)
+GitHub Actions cron (hourly)
         │
         ▼
 scripts/sync.py ──(GraphQL)──▶ recent accepted submissions
@@ -35,7 +35,7 @@ at runtime; `scripts/sync.py` is the only thing that writes it.
 | --- | --- |
 | `data/striver_sheet.json` | Source-of-truth list of all A2Z problems + solved status |
 | `scripts/sync.py` | Fetches recent AC submissions, updates the JSON |
-| `.github/workflows/sync_leetcode.yml` | Cron (every 6h) + manual sync |
+| `.github/workflows/sync_leetcode.yml` | Cron (hourly) + manual sync |
 | `.github/workflows/deploy.yml` | Builds and deploys the site to GitHub Pages |
 | `src/` | React + TypeScript + Tailwind dashboard |
 
@@ -111,7 +111,7 @@ npm run preview
    **Settings → Secrets and variables → Actions**: `LEETCODE_SESSION` (and optionally
    `LEETCODE_CSRF`). Without these the sync runs in Public mode (last 20 solves only).
 6. Trigger the **Sync LeetCode Activity** workflow once manually (Actions tab → Run workflow),
-   or wait for the 6-hour cron. The **Deploy to GitHub Pages** workflow runs after each sync.
+   or wait for the hourly cron. The **Deploy to GitHub Pages** workflow runs after each sync.
 
 > Your LeetCode profile must be public for `recentAcSubmissionList` to return data.
 

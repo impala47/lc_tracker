@@ -2,7 +2,7 @@ name: Sync LeetCode Activity
 
 on:
   schedule:
-    - cron: '0 */6 * * *' # Executes every 6 hours
+    - cron: '0 * * * *' # Executes hourly
   workflow_dispatch: {} # Allows manual force-sync from the GitHub Actions UI
 
 # Allow the job to commit the updated data file back to the repo.
