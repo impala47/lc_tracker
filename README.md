@@ -73,7 +73,7 @@ So the sync has two modes:
 | Mode | Requires | What it captures |
 | --- | --- | --- |
 | **Public** | `LEETCODE_USERNAME` only | Only your last 20 solves. Accumulates over time, but can't backfill problems solved before tracking began — so the count starts low. |
-| **Full** *(recommended)* | `LEETCODE_SESSION` cookie | Your **complete** solved list (accurate `X / 474` count), plus dates for recent solves. |
+| **Full** *(recommended)* | `LEETCODE_SESSION` cookie | Your **complete** solved list (accurate `X / 474` count), plus a real last-solved date for every solved problem (walked from your full submission history). |
 
 To enable Full mode, grab your session cookie and pass it in:
 
@@ -88,9 +88,9 @@ python scripts/sync.py
 > copy the `LEETCODE_SESSION` value. It expires periodically; refresh it when the
 > count stops updating.
 
-> **Note on dates:** Full mode marks every solved problem complete, but LeetCode only
-> exposes dates for recent submissions, so older solves show no "Last Solved on" date
-> and won't appear in the heatmap. The heatmap fills in going forward as you keep solving.
+> **Note on dates:** Full mode walks your entire submission history (`/api/submissions/`),
+> so every solved problem gets its real last-solved date and shows up in the heatmap. In
+> Public mode only the last 20 solves are dated.
 
 Build for production:
 

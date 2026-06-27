@@ -30,11 +30,13 @@ Run:  python scripts/sync.py
 import json
 import os
 import sys
+import time
 from datetime import datetime, timezone
 
 import requests
 
 GRAPHQL_URL = "https://leetcode.com/graphql"
+SUBMISSIONS_API = "https://leetcode.com/api/submissions/"
 
 # data/striver_sheet.json lives one directory up from this script's folder.
 REPO_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -122,15 +124,20 @@ def fetch_recent_dates(username: str, limit: int) -> dict[str, str]:
     return {slug: to_date(ts) for slug, ts in latest.items()}
 
 
-def fetch_all_solved(session_cookie: str, csrf: str | None) -> set[str]:
-    """Authenticated: return the full set of solved titleSlugs for the cookie's user."""
+def _auth_session(session_cookie: str, csrf: str | None) -> requests.Session:
+    """A requests.Session carrying the user's LeetCode auth cookies."""
     cookies = [f"LEETCODE_SESSION={session_cookie}"]
-    headers = {}
+    headers = {"X-Requested-With": "XMLHttpRequest"}
     if csrf:
         cookies.append(f"csrftoken={csrf}")
         headers["x-csrftoken"] = csrf
     headers["Cookie"] = "; ".join(cookies)
-    session = _session(headers)
+    return _session(headers)
+
+
+def fetch_all_solved(session_cookie: str, csrf: str | None) -> set[str]:
+    """Authenticated: return the full set of solved titleSlugs for the cookie's user."""
+    session = _auth_session(session_cookie, csrf)
 
     solved: set[str] = set()
     skip, page = 0, 100
@@ -157,6 +164,42 @@ def fetch_all_solved(session_cookie: str, csrf: str | None) -> set[str]:
     return solved
 
 
+def fetch_submission_dates(session_cookie: str, csrf: str | None) -> dict[str, str]:
+    """
+    Authenticated: walk the user's full submission history and return
+    titleSlug -> most recent accepted solve date (YYYY-MM-DD).
+
+    The /api/submissions/ endpoint returns every submission (paginated, 20 at a
+    time, newest first). Because it's ordered newest-first, the FIRST accepted
+    entry we see for a slug is its most recent solve, so we keep that and skip
+    older duplicates.
+    """
+    session = _auth_session(session_cookie, csrf)
+    session.headers["Referer"] = "https://leetcode.com/submissions/"
+
+    latest_ts: dict[str, int] = {}
+    offset, page, max_pages = 0, 20, 1000  # 20k submissions is a generous ceiling
+    for _ in range(max_pages):
+        resp = session.get(SUBMISSIONS_API, params={"offset": offset, "limit": page}, timeout=30)
+        resp.raise_for_status()
+        data = resp.json()
+        dump = data.get("submissions_dump") or []
+        for sub in dump:
+            if sub.get("status_display") != "Accepted":
+                continue
+            slug, ts = sub.get("title_slug"), sub.get("timestamp")
+            if not slug or ts is None:
+                continue
+            ts = int(ts)
+            if slug not in latest_ts or ts > latest_ts[slug]:
+                latest_ts[slug] = ts
+        if not data.get("has_next") or not dump:
+            break
+        offset += page
+        time.sleep(0.3)  # be gentle on the submissions endpoint
+    return {slug: to_date(ts) for slug, ts in latest_ts.items()}
+
+
 def main() -> int:
     username = os.environ.get("LEETCODE_USERNAME")
     if not username:
@@ -172,10 +215,20 @@ def main() -> int:
     recent_dates = fetch_recent_dates(username, limit)
     print(f"  → dates for {len(recent_dates)} recent problem(s).")
 
+    # dates: titleSlug -> last-solved date. Start with the public recent solves,
+    # then (Full mode) overlay the complete history so EVERY solved problem is dated.
+    dates: dict[str, str] = dict(recent_dates)
+
     if session_cookie:
         print("FULL mode: fetching complete solved list via authenticated session…")
         solved_slugs = fetch_all_solved(session_cookie, csrf)
         print(f"  → {len(solved_slugs)} total solved problems on your account.")
+
+        print("Fetching full submission history for solve dates…")
+        history_dates = fetch_submission_dates(session_cookie, csrf)
+        print(f"  → dated {len(history_dates)} problem(s) from history.")
+        for slug, date in history_dates.items():
+            dates.setdefault(slug, date)  # recent_dates win ties (freshest source)
     else:
         print(
             "PUBLIC mode: no LEETCODE_SESSION set — limited to the 20 most recent solves.\n"
@@ -191,25 +244,27 @@ def main() -> int:
         slug = problem.get("titleSlug")
         if not slug:
             continue
-        is_solved = slug in solved_slugs or slug in recent_dates
+        is_solved = slug in solved_slugs or slug in dates
         if not is_solved:
             continue
         if not problem.get("completed"):
             newly_completed += 1
         problem["completed"] = True
-        # Prefer a known recent date; otherwise keep any date we already had.
-        if slug in recent_dates:
-            problem["lastSolved"] = recent_dates[slug]
-        # else: leave lastSolved as-is (may be a previously-recorded date, or null
-        # for solves we know happened but have no date for).
+        # Apply a known date if we have one; otherwise keep whatever was there.
+        if slug in dates:
+            problem["lastSolved"] = dates[slug]
 
     total_completed = sum(1 for p in problems if p.get("completed"))
+    dated = sum(1 for p in problems if p.get("completed") and p.get("lastSolved"))
     with open(DATA_PATH, "w", encoding="utf-8") as f:
         json.dump(problems, f, indent=2, ensure_ascii=False)
         f.write("\n")
 
     rel = os.path.relpath(DATA_PATH, REPO_ROOT)
-    print(f"Marked {newly_completed} new · {total_completed}/{len(problems)} solved → {rel}")
+    print(
+        f"Marked {newly_completed} new · {total_completed}/{len(problems)} solved "
+        f"({dated} with a date) → {rel}"
+    )
     return 0
 
 
